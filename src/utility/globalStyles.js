@@ -115,7 +115,6 @@ height: 101%;
     ${props => props.theme.breakpoints.tab} {
   }
   ${props => props.theme.breakpoints.desc} {
-    max-width: 1360px;
   }
    
   }
