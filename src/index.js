@@ -1,22 +1,20 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from 'styled-components';
-import GlobalStyle from './utility/globalStyles';
-import { theme } from './utility/theme';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "styled-components";
+import GlobalStyle from "./utility/globalStyles";
+import { theme } from "./utility/theme";
+import App from "./components/App/App";
 
-import { LanguageProvider } from './utility/LanguageContext.js';
-import Page from './page/MapPage/Page.jsx';
-
-const root = createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <BrowserRouter>
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <LanguageProvider>
-        <Page />
-      </LanguageProvider>
-    </ThemeProvider>
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );
