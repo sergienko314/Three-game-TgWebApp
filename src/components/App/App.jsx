@@ -10,9 +10,8 @@ import { Scene } from '../Scene/Scene';
 
 const App = () => {
     const [loading, setLoading] = useState(true);
-    const [fov, setFov] = useState(45); // Исходный FOV
+    const [fov, setFov] = useState(45);
 
-    // Функция для динамической настройки FOV в зависимости от размера окна
     const updateFov = () => {
         const aspectRatio = window.innerWidth / window.innerHeight;
         const calculatedFov = Math.atan(Math.tan((45 * Math.PI) / 360) / aspectRatio) * 360 / Math.PI;
@@ -20,13 +19,10 @@ const App = () => {
     };
 
     useEffect(() => {
-        // Имитируем загрузку ресурсов, это можно заменить на реальную проверку загрузки моделей
         setTimeout(() => setLoading(false), 400);
 
-        // При изменении размера окна обновляем FOV
         window.addEventListener('resize', updateFov);
 
-        // Вызываем функцию при загрузке страницы, чтобы сразу установить правильный FOV
         updateFov();
 
         return () => {
@@ -39,7 +35,7 @@ const App = () => {
                 <Preloader />
             ) : (
                 <Canvas
-                    camera={{ fov: fov, position: [0, 0, 20] }} // FOV настроен для лучшего восприятия
+                    camera={{ fov: fov, position: [0, 0, 20] }}
                     style={{ height: '100vh', width: '100vw', position: 'absolute', top: 0, left: 0 }}
                 >
                     <ambientLight intensity={0.5} />

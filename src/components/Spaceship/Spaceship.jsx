@@ -4,14 +4,14 @@ import { useEffect, useState } from 'react';
 import * as THREE from 'three';
 
 const Spaceship = ({ spaceshipRef }) => {
-    const { camera } = useThree(); // Доступ к камере
-    const speedIncrement = 0.005; // Увеличение скорости при удерживании клавиши
-    const rotationSpeed = 0.020; // Скорость поворота
-    const maxSpeed = 0.5; // Максимальная скорость
-    const minSpeed = 0.002; // Минимальная скорость инерции
-    const friction = 0.098; // Снижение скорости из-за трения
+    const { camera } = useThree();
+    const speedIncrement = 0.005;
+    const rotationSpeed = 0.020;
+    const maxSpeed = 0.5;
+    const minSpeed = 0.002;
+    const friction = 0.98;
 
-    const [velocity, setVelocity] = useState(0); // Текущая скорость
+    const [velocity, setVelocity] = useState(0);
     const [keysPressed, setKeysPressed] = useState({
         w: false,
         s: false,
@@ -24,11 +24,11 @@ const Spaceship = ({ spaceshipRef }) => {
 
 
     const handleKeyDown = (event) => {
-        setKeysPressed((prev) => ({ ...prev, [event.key]: true })); // Изменено на event.key
+        setKeysPressed((prev) => ({ ...prev, [event.key]: true }));
     };
 
     const handleKeyUp = (event) => {
-        setKeysPressed((prev) => ({ ...prev, [event.key]: false })); // Изменено на event.key
+        setKeysPressed((prev) => ({ ...prev, [event.key]: false }));
     };
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -40,52 +40,51 @@ const Spaceship = ({ spaceshipRef }) => {
         };
     }, []);
 
-    // Управление кораблем на каждом кадре
     useFrame(() => {
         if (spaceshipRef.current) {
             const position = spaceshipRef.current.position;
             const rotation = spaceshipRef.current.rotation;
-            // Движение вперед/назад
+
             if (keysPressed.ArrowUp) {
                 setVelocity((prev) => Math.min(prev + speedIncrement, maxSpeed));
             } else if (keysPressed.ArrowDown) {
                 setVelocity((prev) => Math.max(prev - speedIncrement, -maxSpeed));
             } else {
-                // Если клавиши не нажаты, скорость уменьшается до минимальной за счёт трения
                 setVelocity((prev) => Math.max(prev * friction, minSpeed));
             }
-
-            // Повороты
-            if (keysPressed.a || keysPressed.ф) {
-                rotation.y += rotationSpeed; // Поворот влево
-            }
-            if (keysPressed.d || keysPressed.в) {
-                rotation.y -= rotationSpeed; // Поворот вправо
-            }
-
-            // Изменение высоты
+            const pitchQuaternion = new THREE.Quaternion();
             if (keysPressed.w || keysPressed.ц) {
-                position.y += rotationSpeed * 4; // Подъем
+                pitchQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), rotationSpeed / 2);
+                spaceshipRef.current.quaternion.multiply(pitchQuaternion);
             }
             if (keysPressed.s || keysPressed.ы) {
-                position.y -= rotationSpeed * 4; // Спуск
+                pitchQuaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), -rotationSpeed / 2);
+                spaceshipRef.current.quaternion.multiply(pitchQuaternion);
+            }
+
+
+            const yawQuaternion = new THREE.Quaternion();
+            if (keysPressed.a || keysPressed.ф) {
+                yawQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotationSpeed);
+                spaceshipRef.current.quaternion.multiply(yawQuaternion);
+            }
+            if (keysPressed.d || keysPressed.в) {
+                yawQuaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -rotationSpeed);
+                spaceshipRef.current.quaternion.multiply(yawQuaternion);
             }
 
             const forwardVector = new THREE.Vector3(0, 0, -1).applyEuler(rotation);
             position.addScaledVector(forwardVector, velocity);
-            // // // Камера следует за кораблем и поворачивается вместе с ним
-            const cameraOffset = new THREE.Vector3(0, 4, 10).applyEuler(rotation); // Смещение камеры
+            const cameraOffset = new THREE.Vector3(0, 4, 10).applyEuler(rotation);
             camera.position.copy(position.clone().add(cameraOffset));
             const lookAtPosition = position.clone();
-            lookAtPosition.y += 2;  // Камера будет смотреть на 5 единиц выше корабля
+            lookAtPosition.y += 2;
             camera.lookAt(lookAtPosition);
-
         }
     });
 
     return (
-        // Размещаем корабль (куб) ниже центра
-        <mesh ref={spaceshipRef} position={[0, -2, 10]} rotation={[0, Math.PI, 0]}>
+        <mesh ref={spaceshipRef} position={[0, -2, -20]} rotation={[0, Math.PI, 0]}>
             <boxGeometry args={[0.4, 0.4, 0.4]} />
             <meshStandardMaterial color="orange" />
         </mesh>

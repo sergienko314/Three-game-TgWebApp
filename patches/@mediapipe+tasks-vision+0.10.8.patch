@@ -1,0 +1,4 @@
+diff --git a/node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.map b/node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.js.map
+similarity index 100%
+rename from node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.map
+rename to node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.js.map

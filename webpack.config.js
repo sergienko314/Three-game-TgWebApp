@@ -1,9 +1,19 @@
 module.exports = {
-  // другая конфигурация
+  // Другая конфигурация...
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        enforce: "pre",
+        use: ["source-map-loader"],
+        exclude: /node_modules/, // Игнорируем все node_modules
+      },
+    ],
+  },
   ignoreWarnings: [
-    function (warning) {
-      // Игнорировать предупреждение, связанное с картой исходного кода @mediapipe/tasks-vision
-      return warning.message.includes("Failed to parse source map from");
+    {
+      module: /@mediapipe\/tasks-vision/,
+      message: /Failed to parse source map/,
     },
   ],
 };
