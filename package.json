@@ -34,7 +34,7 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "netlify deploy -p",
-  "postinstall": "node your-postinstall-script.js"
+"postinstall": "echo 'No postinstall script specified'"
   },
   "eslintConfig": {
     "extends": [
