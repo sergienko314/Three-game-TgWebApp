@@ -27,13 +27,14 @@
     "yup": "^0.32.11"
   },
   "scripts": {
+    
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "netlify deploy -p",
-    "postinstall": "patch-package"
+  "postinstall": "node your-postinstall-script.js"
   },
   "eslintConfig": {
     "extends": [
@@ -54,7 +55,6 @@
     ]
   },
   "devDependencies": {
-    "postinstall-postinstall": "^2.1.0",
     "react-app-rewired": "^2.2.1"
   }
 }

@@ -1,5 +1,5 @@
 [build]
-  publish = "build"
+   command = "CI= npm install && npm run build"
 
 [[redirects]]
   from = "/*"
