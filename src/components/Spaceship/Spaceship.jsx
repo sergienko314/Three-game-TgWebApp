@@ -2,13 +2,15 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useState } from 'react';
 import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+
 
 const Spaceship = ({ spaceshipRef }) => {
     const { camera } = useThree();
     const speedIncrement = 0.005;
     const rotationSpeed = 0.020;
     const maxSpeed = 0.5;
-    const minSpeed = 0.002;
+    const minSpeed = 0.007;
     const friction = 0.98;
 
     const [velocity, setVelocity] = useState(0);
@@ -20,7 +22,32 @@ const Spaceship = ({ spaceshipRef }) => {
         ArrowDown: false,
         ArrowUp: false,
     });
-    console.log(keysPressed);
+
+    const loader = new FBXLoader();
+
+
+
+    useEffect(() => {
+        loader.load('/Venator.fbx', (object) => {
+            object.scale.set(0.03, 0.03, 0.03); // Уменьшаем масштаб модели
+            object.position.set(0, 10, -40); // Опускаем корабль вниз экрана
+            object.rotation.set(0, Math.PI, 0); // Разворачиваем корабль, чтобы летел вперед
+
+            // Временно заменим материал, чтобы убедиться, что свет работает
+            object.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        // color: 0x5555ff,  // Цвет
+                        metalness: 0.5,  // Металлический эффект
+                        roughness: 0.1,  // Гладкость поверхности
+                    });
+                }
+            });
+
+            spaceshipRef.current.add(object);
+        });
+        // eslint-disable-next-line
+    }, [spaceshipRef])
 
 
     const handleKeyDown = (event) => {
@@ -84,10 +111,9 @@ const Spaceship = ({ spaceshipRef }) => {
     });
 
     return (
-        <mesh ref={spaceshipRef} position={[0, -2, -20]} rotation={[0, Math.PI, 0]}>
-            <boxGeometry args={[0.4, 0.4, 0.4]} />
-            <meshStandardMaterial color="orange" />
-        </mesh>
+        <group ref={spaceshipRef} position={[0, -2, -40]} rotation={[0, Math.PI, 0]} scale={[-0.4, -0.4, 0.4]}>
+            {/* Отображаем загруженную модель космического корабля */}
+        </group>
     );
 };
 
