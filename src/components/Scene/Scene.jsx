@@ -31,6 +31,7 @@ export const Scene = () => {
         <>
             <SolarSystem />
             <Spaceship spaceshipRef={spaceshipRef} />
+
         </>
     );
 };

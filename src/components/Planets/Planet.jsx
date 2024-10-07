@@ -40,7 +40,7 @@ const Planet = forwardRef(({ radius, speed, size, initialAngle, diffuseMapLink, 
             {texturesLoaded && ( // Рендерим только если текстуры загружены
                 <meshStandardMaterial
                     map={diffuseMap}  // Текстура для основного цвета
-                    displacementMap={displacementMap}  // Карта смещения
+                    // displacementMap={displacementMap}  // Карта смещения
                     displacementScale={0.05}  // Масштаб смещения для рельефа
                     roughness={0.8}  // Значение шероховатости
                 />

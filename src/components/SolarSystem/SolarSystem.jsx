@@ -30,7 +30,7 @@ const Satellite = ({ radius, speed, size, color, parentPlanet, initialAngle = 0 
 
 const AsteroidBelt = ({ radius, numAsteroids, beltWidth }) => {
 
-    const diffuseMap = useLoader(TextureLoader, '/textures/asteroid_diff_4k.jpg');
+    const diffuseMap = useLoader(TextureLoader, '/textures/venus_diff_4k.jpg');
 
     const asteroids = [];
     for (let i = 0; i < numAsteroids; i++) {

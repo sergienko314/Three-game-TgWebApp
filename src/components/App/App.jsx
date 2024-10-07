@@ -5,12 +5,14 @@ import Preloader from '../Preloader/Preloader.jsx';
 import { Scene } from '../Scene/Scene';
 import { Stars } from '../SolarSystem/Sky.js';
 import { loadTextures } from './loadTextures.js';
+import { Crosshair } from '../Shutter/Shutter.jsx';
 
 const App = () => {
     const [loading, setLoading] = useState(true);
     const [textures, setTextures] = useState(null);
     const [fov, setFov] = useState(45);
 
+    console.log("loading", loading);
     const updateFov = () => {
         const aspectRatio = window.innerWidth / window.innerHeight;
         const calculatedFov = Math.atan(Math.tan((45 * Math.PI) / 360) / aspectRatio) * 360 / Math.PI;
@@ -48,29 +50,26 @@ const App = () => {
     return (
         <>
             <Suspense fallback={<Preloader />}>
-                {loading ? (
-                    <Preloader />
-                ) : (
 
+                <Canvas
+                    camera={{ fov: fov, position: [0, 0, 20] }}
+                    style={{
+                        height: '100vh',
+                        width: '100vw',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        background: 'radial-gradient(circle at 50% 50%, #070737, #191c1d)',  // Градиент для фона
+                    }}
+                >
+                    <Stars />
+                    <ambientLight intensity={0.5} />
 
-                    <Canvas
-                        camera={{ fov: fov, position: [0, 0, 20] }}
-                        style={{
-                            height: '100vh',
-                            width: '100vw',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            background: 'radial-gradient(circle at 50% 50%, #070737, #191c1d)',  // Градиент для фона
-                        }}
-                    >
-                        <Stars />
-                        <ambientLight intensity={0.5} />
+                    <Scene textures={textures} /> {/* Передаем текстуры в сцену */}
 
-                        <Scene textures={textures} /> {/* Передаем текстуры в сцену */}
+                </Canvas>
+                <Crosshair />
 
-                    </Canvas>
-                )}
             </Suspense >
 
         </>
