@@ -5,40 +5,75 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import Asteroid from '../Asteroid';
 import { Laser } from '../Shutter/Shutter';
 
-const Spaceship = () => {
+const Spaceship = ({ onRestartGame, asteroids, setAsteroids, spawnInterval, setSpawnInterval, setScore }) => {
     const spaceshipRef = useRef();
     const [lasers, setLasers] = useState([]);
-    const [asteroids, setAsteroids] = useState([]);
-    const [score, setScore] = useState(0);
-
-    const handleGameOver = () => {
-        alert('Game Over');
-        setAsteroids([]);
-        setScore(0);
-    };
 
 
-    const handleLaserHit = (asteroid) => {
-        setAsteroids(asteroids.filter(a => a !== asteroid));
-        setScore(score + 1);
-    };
+    const handleLaserHit = useCallback((asteroidId) => {
+        setAsteroids((prevAsteroids) =>
+            prevAsteroids
+                .map((asteroid) => {
+                    if (asteroid.id === asteroidId) {
+                        asteroid.health -= 1;
+                        if (asteroid.health <= 0) {
+                            console.log(`Asteroid ${asteroidId} destroyed.`);
+                            return null; // Удаляем астероид
+                        }
+                    }
+                    return asteroid;
+                })
+                .filter(Boolean) // Убираем null значения
+        );
+        setScore((prevScore) => prevScore + 1);
+    }, [setAsteroids, setScore]);
+
 
     useEffect(() => {
-        const initialAsteroids = Array.from({ length: 5 }).map(() => (
-            <Asteroid key={Math.random()}
-                position={new THREE.Vector3(
+        const intervalId = setInterval(() => {
+            const newAsteroid = {
+                id: Math.random(),
+                position: new THREE.Vector3(
                     Math.random() * 200 - 100,
                     Math.random() * 200 - 100,
                     Math.random() * 200 - 100
-                )}
-                onGameOver={handleGameOver}
-                onDestroyed={() => handleLaserHit(this)} />
-        ));
-        setAsteroids(initialAsteroids);
-        // eslint-disable-next-line
-    }, []);
+                ),
+                health: 3,
+                ref: React.createRef() // Создаём ref для астероида
+            };
 
+            setAsteroids(prevAsteroids => [...prevAsteroids, newAsteroid]);
 
+            setSpawnInterval(prevInterval => Math.max(prevInterval * 0.98, 3000));
+        }, spawnInterval);
+
+        return () => clearInterval(intervalId);
+
+    }, [spawnInterval, setSpawnInterval, setAsteroids]); // Обновляем эффект, когда изменяется spawnInterval
+
+    // eslint-disable-next-line  
+    const handleShoot = () => {
+        const laserDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(spaceshipRef.current.quaternion);
+        const laserPosition = spaceshipRef.current.localToWorld(new THREE.Vector3(0, 7, -50));
+
+        setLasers((prevLasers) => [
+            ...prevLasers,
+            { id: Math.random(), position: laserPosition, direction: laserDirection }
+        ]);
+    };
+
+    // Обработчик нажатия клавиши для стрельбы
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.code === 'Space') {
+                handleShoot();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [handleShoot]);
+
+    // Загрузка и настройка модели корабля
     useEffect(() => {
         const loader = new FBXLoader();
         loader.load('/Venator.fbx', (object) => {
@@ -54,34 +89,9 @@ const Spaceship = () => {
                     });
                 }
             });
-
             spaceshipRef.current.add(object);
         });
-    }, [spaceshipRef]);
-
-
-    const handleShoot = useCallback(() => {
-        const laserDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(spaceshipRef.current.quaternion);
-        const laserPosition = spaceshipRef.current.localToWorld(new THREE.Vector3(0, 7, -50));
-
-        setLasers((prevLasers) => [
-            ...prevLasers,
-            <Laser key={Math.random()} startPosition={laserPosition} direction={laserDirection} />
-        ]);
     }, []);
-
-
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.code === 'Space') {
-                handleShoot();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-
-    }, [handleShoot]);
-
 
     return (
         <>
@@ -89,8 +99,30 @@ const Spaceship = () => {
                 <FlyControls spaceshipRef={spaceshipRef} />
             </group>
 
-            {lasers}
-            {asteroids}
+
+            {lasers.map((laser) => (
+                <Laser
+                    key={laser.id}
+                    id={laser.id}
+                    startPosition={laser.position}
+                    direction={laser.direction}
+                    asteroids={asteroids}
+                    onHitAsteroid={handleLaserHit}
+                />
+            ))}
+
+            {asteroids.map((asteroid) => (
+                <Asteroid
+                    asteroidRef={asteroid.ref}
+                    key={asteroid.id}
+                    id={asteroid.id}
+                    position={asteroid.position}
+                    health={asteroid.health}
+                    onDestroyed={() => handleLaserHit(asteroid.id)}
+                    onRestartGame={onRestartGame}
+
+                />
+            ))}
         </>
     );
 };

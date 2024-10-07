@@ -3,16 +3,36 @@ import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import Preloader from '../Preloader/Preloader.jsx';
 import { Scene } from '../Scene/Scene';
-import { Stars } from '../SolarSystem/Sky.js';
 import { loadTextures } from './loadTextures.js';
-import { Crosshair } from '../Shutter/Shutter.jsx';
+import { BestScore, ButtonRestartGame, Crosshair, ScoreCompotent, Timer } from '../Shutter/Shutter.jsx';
 
 const App = () => {
+    const [score, setScore] = useState(0);
     const [loading, setLoading] = useState(true);
     const [textures, setTextures] = useState(null);
     const [fov, setFov] = useState(45);
+    const [spawnInterval, setSpawnInterval] = useState(10000); // Интервал появления в миллисекундах
+    const [asteroids, setAsteroids] = useState([]);
+
+    const [isGameActive, setIsGameActive] = useState(true);
 
     console.log("loading", loading);
+
+    const onRestartGame = () => {
+        if (window.confirm("Restart the game?")) {
+            setIsGameActive(true);
+            setScore(0);
+            setSpawnInterval(10000); // Сбрасываем интервал спавна
+            setAsteroids([])
+        } else {
+            setIsGameActive(false); // Останавливаем игру
+        }
+    };
+
+
+    console.log("loading", loading);
+
+
     const updateFov = () => {
         const aspectRatio = window.innerWidth / window.innerHeight;
         const calculatedFov = Math.atan(Math.tan((45 * Math.PI) / 360) / aspectRatio) * 360 / Math.PI;
@@ -47,6 +67,8 @@ const App = () => {
         };
     }, []);
 
+
+
     return (
         <>
             <Suspense fallback={<Preloader />}>
@@ -62,14 +84,17 @@ const App = () => {
                         background: 'radial-gradient(circle at 50% 50%, #070737, #191c1d)',  // Градиент для фона
                     }}
                 >
-                    <Stars />
+
                     <ambientLight intensity={0.5} />
 
-                    <Scene textures={textures} /> {/* Передаем текстуры в сцену */}
+                    <Scene onRestartGame={onRestartGame} asteroids={asteroids} setAsteroids={setAsteroids} spawnInterval={spawnInterval} setSpawnInterval={setSpawnInterval} setScore={setScore} textures={textures} />
 
                 </Canvas>
+                <ScoreCompotent score={score} />
                 <Crosshair />
-
+                <Timer isGameActive={isGameActive} spawnInterval={spawnInterval} setSpawnInterval={setSpawnInterval} />
+                <BestScore score={score} />
+                <ButtonRestartGame onRestartGame={onRestartGame} />
             </Suspense >
 
         </>

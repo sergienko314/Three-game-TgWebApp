@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import Planet from '../Planets/Planet';
 import Sun from '../Sun/Sun';
 import { TextureLoader } from 'three';
+import { Stars } from './Sky';
 
 const Satellite = ({ radius, speed, size, color, parentPlanet, initialAngle = 0 }) => {
     const satelliteRef = useRef();
@@ -27,23 +28,23 @@ const Satellite = ({ radius, speed, size, color, parentPlanet, initialAngle = 0 
         </mesh>
     );
 };
-
 const AsteroidBelt = ({ radius, numAsteroids, beltWidth }) => {
-
     const diffuseMap = useLoader(TextureLoader, '/textures/venus_diff_4k.jpg');
 
-    const asteroids = [];
-    for (let i = 0; i < numAsteroids; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const distance = radius + Math.random() * beltWidth;
-        asteroids.push(
-            <mesh key={i} position={[distance * Math.cos(angle), 0, distance * Math.sin(angle)]}>
-                <sphereGeometry args={[0.05, 16, 16]} />
-                <meshStandardMaterial
-                    map={diffuseMap} />
-            </mesh>
-        );
-    }
+    const asteroids = useMemo(() => {
+        const newAsteroids = [];
+        for (let i = 0; i < numAsteroids; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = radius + Math.random() * beltWidth;
+            newAsteroids.push(
+                <mesh key={i} position={[distance * Math.cos(angle), 0, distance * Math.sin(angle)]}>
+                    <sphereGeometry args={[0.05, 16, 16]} />
+                    <meshStandardMaterial map={diffuseMap} />
+                </mesh>
+            );
+        }
+        return newAsteroids;
+    }, [radius, numAsteroids, beltWidth, diffuseMap]); // Эти зависимости статичны, так что memo будет работать
 
     return <group>{asteroids}</group>;
 };
@@ -52,8 +53,11 @@ const SolarSystem = () => {
     const earthRef = useRef();
     const jupiterRef = useRef();
 
+    const stars = useMemo(() => <Stars />, []); // Создаём звёзды один раз
+
     return (
         <>
+            {stars}
             <Sun />
             <Planet diffuseMapLink="/textures/earth_diff_4k.jpg" displacementMapLink="/textures/earth_disp_4k.png" radius={5} speed={0.01} size={0.5} color="blue" initialAngle={0} ref={earthRef} />
             <Planet diffuseMapLink="/textures/mars_diff_4k.jpg" displacementMapLink="/textures/mars_disp_4k.png" radius={8} speed={0.008} size={0.6} color="red" initialAngle={Math.PI / 2} />
