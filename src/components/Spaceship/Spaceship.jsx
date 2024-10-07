@@ -13,14 +13,14 @@ const Spaceship = () => {
 
     const handleGameOver = () => {
         alert('Game Over');
-        setAsteroids([]); // Сброс астероидов
-        setScore(0); // Сброс очков
+        setAsteroids([]);
+        setScore(0);
     };
 
 
     const handleLaserHit = (asteroid) => {
-        setAsteroids(asteroids.filter(a => a !== asteroid)); // Удаляем астероид
-        setScore(score + 1); // Начисляем очки
+        setAsteroids(asteroids.filter(a => a !== asteroid));
+        setScore(score + 1);
     };
 
     useEffect(() => {

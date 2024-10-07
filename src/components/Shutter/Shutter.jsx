@@ -7,13 +7,10 @@ export const Laser = ({ startPosition, direction }) => {
 
     useFrame((state, delta) => {
         if (laserRef.current) {
-            // Двигаем лазер вперед
             laserRef.current.position.add(direction.clone().normalize().multiplyScalar(delta * 300));
 
-            // Вращение лазера вокруг оси X для горизонтального вращения
             laserRef.current.rotateOnAxis(new THREE.Vector3(1, 0, 0), delta * 30);
 
-            // Удаляем лазер, если он выходит за пределы сцены
             if (laserRef.current.position.length() > 1000) {
                 laserRef.current.visible = false;
             }
